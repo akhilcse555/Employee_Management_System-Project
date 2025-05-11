@@ -1,21 +1,15 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Footer from "./components/Footer";
+// App.js
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Footer from './components/Footer';
 import Addemployee from './pages/Addemployee';
 import Editemployee from './pages/Editemployee';
-
-import { Navigate } from "react-router-dom";
-import { useAuth } from "./context_api/AuthContext";
-
-function PrivateRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
-}
-
-
+import AdminSignup from './pages/AdminSignup';
+import ChangePassword from './pages/ChangePassword';
+import ProtectedRoute from './components/Protected.js';
 
 function App() {
   return (
@@ -24,10 +18,15 @@ function App() {
         <Navbar />
         <div className="p-4 grow">
           <Routes>
-            <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            <Route path="/Addemployee" element={<PrivateRoute><Addemployee /></PrivateRoute>} />
-            <Route path="/Editemployee/:id" element={<Editemployee />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/Addemployee" element={<Addemployee />} />
+              <Route path="/Editemployee/:id" element={<Editemployee />} />
+             
+            </Route>
+            <Route path="/change-password/:userId" element={<ChangePassword />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/admin-signup" element={<AdminSignup />} />
           </Routes>
         </div>
         <Footer />

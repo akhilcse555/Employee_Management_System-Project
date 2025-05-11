@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context_api/AuthContext";
-
+import { useSelector } from "react-redux";
+import { logout } from "../redux/authSlice";
+import { useDispatch } from "react-redux";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const { user, logout } = useAuth();
-
+    const user = useSelector((state) => state.auth.user);
+    const dispatch = useDispatch();
+  
     const toggleMenu = () => {
-        setIsOpen(!isOpen);
+      setIsOpen(!isOpen);
+    };
+  
+    const handleLogout = () => {
+      dispatch(logout());
     };
 
     return (
@@ -32,11 +39,12 @@ const Navbar = () => {
           <>
             <Link to="/" className="hover:underline">Dashboard</Link>
             <Link to="/Addemployee" className="hover:underline">Addemployee</Link>
-            <button onClick={logout}>Logout</button>
+            <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
           <>
             <Link to="/Login" className="hover:underline">Login</Link>
+            <Link to="/admin-signup" className="hover:underline">Admin-Singup</Link>
           </>
         )}
         </div>
@@ -54,11 +62,12 @@ const Navbar = () => {
                  <>
                     <Link to="/" className="hover:underline" onClick={toggleMenu}>Dashboard</Link>
                     <Link to="/Addemployee" className="hover:underline" onClick={toggleMenu}>Addemployee</Link>
-                    <button onClick={logout}>Logout</button>
+                    <button onClick={handleLogout}>Logout</button>
                 </>
                 ) : (
-                <>
+                    <>
                     <Link to="/Login" className="hover:underline" onClick={toggleMenu}>Login</Link> 
+                    <Link to="/admin-signup" className="hover:underline">Admin-Singup</Link>
                     </>
                 )}
                 </div>

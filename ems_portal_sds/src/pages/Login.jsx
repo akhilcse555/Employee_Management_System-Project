@@ -1,38 +1,36 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 import Button from '../components/Button.jsx'
 import Input from '../components/Input.jsx'
 import Logo from '../components/Logo.jsx'
 import { useForm } from 'react-hook-form'
-import { useAuth } from '../context_api/AuthContext.js'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import toast from 'react-hot-toast'
-
+import { useDispatch, useSelector } from 'react-redux'
+import { loginUser } from '../redux/authSlice.js'
 
 function Login() {
     const {register, handleSubmit} = useForm();
-    const [error, setError] = useState("");
-    const { login } = useAuth();
     const navigate = useNavigate();
+    const { loading, error, firstLogin, userId } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
 
     const onSubmitLogin = async (user_data) => {
-            console.log(user_data);
-            await axios.post("http://localhost:8000/ems_user/users", user_data)
-            .then((res) =>  {
-                login(res.data); // set token + user
-                navigate("/");
-                console.log(res.data);
-            })
-            .catch((err) => {
-                if (err.response && err.response.status === 401) {
-                    // alert(err.response.data.message); // or use toast
-                    toast.success(err.response.data.message,{position: "top-right"});
-                  } else {
-                    alert("Something went wrong");
+            const result = await dispatch(loginUser(user_data));
+
+            if (result.meta.requestStatus === 'fulfilled') {
+                if (result.payload.firstLogin) {
+                    // Pass email and temp password to change password page
+                    navigate(`/change-password/${result.payload.userId}`, {
+                        state: {
+                            email: user_data.email,
+                            oldPassword: user_data.password,
+                        },
+                    });
+                } else {
+                    navigate('/'); // Redirect to your protected dashboard
                 }
-            })
+            }
     };
+          
 
     return (
         <div
@@ -44,7 +42,7 @@ function Login() {
                             <Logo width="100%" />
                         </h2>
             </div>
-            {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
+            {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleSubmit(onSubmitLogin)} className='mt-4'>
                 <div className='space-y-3'>
                     <Input
@@ -75,7 +73,7 @@ function Login() {
                     <Button
                     type="submit"
                     className="w-full"
-                    >Sign in</Button>
+                    >{loading ? 'Logging in...' : 'Login'}</Button>
                 </div>
             </form>
             </div>
